@@ -1,0 +1,20 @@
+#!/bin/bash
+#
+# Enhancement to the original git branch command
+# Add the remote name to the classic branch list
+#
+filter=$1
+
+git branch | while read b
+do
+    end="\033[00m"
+    if [ '*' = "$(echo "$b" | awk '{ print $1; }')" ]
+    then
+        beg="\033[01m"
+    else
+        beg=${end}
+    fi
+    branch=$(echo "$b" | awk '{ print $NF; }')
+    remote=$(git config -l | grep "branch.${branch}.remote" | awk -F "=" '{ print $2; }')
+    [ -n "${filter}" -a "${remote}" != "${filter}" ] || printf "${beg}%-10s %s${end}\n" "[${remote:-<none>}]" "$branch"
+done

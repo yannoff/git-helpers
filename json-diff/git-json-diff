@@ -1,0 +1,31 @@
+#!/bin/bash
+
+diffbin=diff
+yamlbin=yamltools
+# Smoke test: is yamltools installed ?
+$yamlbin --version 2>/dev/null
+
+if [ $? -eq 127 ]
+then
+    printf "This script needs the %s library.\nExiting.\n" $yamlbin
+    exit 127
+fi
+
+file=$1
+
+if [ -z "$file" ]
+then
+    printf "Usage: %s <JSON_FILE>\n" "$(basename $0)"
+fi
+
+blob=$(git ls-tree HEAD $file | awk '{ print $3; }')
+contents=$(git cat-file -p $blob)
+
+original=$(mktemp)
+modified=$(mktemp)
+echo $contents | yamltools convert:json:yaml - $original 2>/dev/null
+cat $file | yamltools convert:json:yaml - $modified 2>/dev/null
+
+$diffbin -uwb $original $modified
+
+rm -i $original $modified

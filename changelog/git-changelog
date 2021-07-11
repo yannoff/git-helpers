@@ -1,0 +1,21 @@
+#!/bin/bash
+
+usage(){
+    local code=$1
+    [ -z "$code" ] && code=0
+    cat <<EOH
+Usage:
+    git changelog <previous-tag> [<current-tag>]
+EOH
+    exit ${code}
+}
+
+if [ $# -eq 0 ]
+then
+    usage 2
+fi
+
+previous=$1
+[ -n "$2" ] && current=$2 || current=HEAD
+
+git log --oneline --reverse --no-decorate ${previous}..${current}
