@@ -5,17 +5,25 @@ usage(){
     [ -z "$code" ] && code=0
     cat <<EOH
 Usage:
-    git changelog <previous-tag> [<current-tag>]
+    git changelog [<previous-tag>] [<current-tag>]
 EOH
     exit ${code}
 }
 
-if [ $# -eq 0 ]
-then
-    usage 2
-fi
+current=HEAD
+case $# in
+    2)
+        previous=$1
+        current=$2
+        ;;
+    1)
+        previous=$1
+        ;;
+    0)
+        previous=$(git describe --tag --abbrev=0)
+        ;;
+esac
 
-previous=$1
-[ -n "$2" ] && current=$2 || current=HEAD
-
+git fetch --all --tags >&2
+git status -uno -s >&2
 git log --oneline --reverse --no-decorate ${previous}..${current}
