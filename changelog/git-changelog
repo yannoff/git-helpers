@@ -24,6 +24,6 @@ case $# in
         ;;
 esac
 
-git fetch --all --tags >&2
+git fetch --all --tags -q >&2
 git status -uno -s >&2
 git log --oneline --reverse --no-decorate ${previous}..${current}
