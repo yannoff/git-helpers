@@ -1,0 +1,9 @@
+#!/bin/bash
+
+for f in "$@"
+do
+    git checkout $f && \
+    git rebase -i - && \
+    git push 
+    git checkout -
+done
