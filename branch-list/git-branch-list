@@ -5,6 +5,16 @@
 #
 filter=$1
 
+_is_current_branch(){
+    local line=${1}
+    return [ '*' = "$(echo "${line}" | awk '{ print $1; }')" ]
+}
+
+_get_branch_remote(){
+    local branch=${1}
+    git config -l | grep "branch.${branch}.remote" | awk -F "=" '{ print $2; }'
+}
+
 git branch | while read b
 do
     end="\033[00m"
