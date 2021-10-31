@@ -1,9 +1,24 @@
 #!/bin/bash
 
+current=$(git branch | awk '($1 == "*") { print $2; }')
+
+trap "echo; echo 'Exiting...';echo; git checkout ${current}; exit 0" SIGINT SIGTERM
+
 for f in "$@"
 do
-    git checkout $f && \
+    printf "Checking out to: %s\n" ${f} && \
+    git checkout ${f} && \
+    printf "Rebasing onto: %s\n" ${current} && \
+    sleep 2
     git rebase -i - && \
-    git push 
-    git checkout -
+    printf "Push rebased branch ? (y/N)\n" && \
+    read r && \
+    {
+        [ "$r" == "y" ] && \
+        git push && \
+        printf "Pushed rebased branch\n"
+    }
+    git checkout ${current}
 done
+
+git checkout ${current}
