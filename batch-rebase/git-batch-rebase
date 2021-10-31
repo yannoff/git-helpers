@@ -11,12 +11,19 @@ do
     printf "Rebasing onto: %s\n" ${current} && \
     sleep 2
     git rebase -i - && \
-    printf "Push rebased branch ? (y/N)\n" && \
+    printf "Push rebased branch ? (y/f/N)\n" && \
     read r && \
     {
-        [ "$r" == "y" ] && \
-        git push && \
-        printf "Pushed rebased branch\n"
+        case "${r}" in
+            y|yes)
+                git push && \
+                printf "Pushed rebased branch\n"
+                ;;
+            f|force)
+                git push --force && \
+                printf "Force-pushed rebased branch\n"
+                ;;
+        esac
     }
     git checkout ${current}
 done
