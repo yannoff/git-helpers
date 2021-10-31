@@ -5,7 +5,7 @@ usage(){
     [ -z "$code" ] && code=0
     cat <<EOH
 Usage:
-    git changelog [<previous-tag>] [<current-tag>]
+    git changelog [<previous-tag> [<current-tag>]]
 EOH
     exit ${code}
 }
