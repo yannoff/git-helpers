@@ -30,9 +30,8 @@ trap "echo; echo 'Exiting...';echo; git checkout -q ${current}; exit 0" SIGINT S
 
 for f in "$@"
 do
-    _printf "Checking out to: %s" ${f} && \
-    git checkout ${f} && \
-    _printf "Rebasing onto: %s" ${current} && \
+    _printf "Rebasing %s onto %s" ${f} ${current} && \
+    git checkout -q ${f} && \
     sleep 2
     git rebase -i ${current} && \
     _printf "Push rebased branch ? (y/f/N)" && \
