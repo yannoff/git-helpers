@@ -1,31 +1,53 @@
 #!/bin/bash
+#
+# Batch rebase script
+# Rebase several branches on the current one
+#
+
+_usage(){
+    local code=${1:-0}
+    echo "Usage:"
+    echo "    git batch-rebase branch1 [branch2 ... [branchN]]"
+    exit ${code}
+}
+
+_printf(){
+    local msg=${1}
+    shift 1
+    set -- "\033[01m${msg}\033[00m\n" "$@"
+    printf "$@"
+}
+
+[ "$#" -eq "0" ] && _usage
 
 current=$(git branch | awk '($1 == "*") { print $2; }')
 
-trap "echo; echo 'Exiting...';echo; git checkout ${current}; exit 0" SIGINT SIGTERM
+trap "echo; echo 'Exiting...';echo; git checkout -q ${current}; exit 0" SIGINT SIGTERM
 
 for f in "$@"
 do
-    printf "Checking out to: %s\n" ${f} && \
+    _printf "Checking out to: %s" ${f} && \
     git checkout ${f} && \
-    printf "Rebasing onto: %s\n" ${current} && \
+    _printf "Rebasing onto: %s" ${current} && \
     sleep 2
-    git rebase -i - && \
-    printf "Push rebased branch ? (y/f/N)\n" && \
+    git rebase -i ${current} && \
+    _printf "Push rebased branch ? (y/f/N)" && \
     read r && \
     {
         case "${r}" in
             y|yes)
                 git push && \
-                printf "Pushed rebased branch\n"
+                _printf "=> Pushed rebased branch"
                 ;;
             f|force)
                 git push --force && \
-                printf "Force-pushed rebased branch\n"
+                _printf "=> Force-pushed rebased branch"
                 ;;
+            *)
+                _printf "=> Rebased branch not pushed"
         esac
     }
-    git checkout ${current}
+    git checkout -q ${current}
 done
 
-git checkout ${current}
+git checkout -q ${current}
