@@ -7,6 +7,7 @@
 _usage(){
     local code=${1:-0}
     echo "Usage:"
+    echo "    git batch-rebase --all"
     echo "    git batch-rebase branch1 [branch2 ... [branchN]]"
     exit ${code}
 }
@@ -21,6 +22,9 @@ _printf(){
 [ "$#" -eq "0" ] && _usage
 
 current=$(git branch | awk '($1 == "*") { print $2; }')
+
+# If --all option was supplied, set all (except the current) branches as argument
+[ "${1}" == "--all" ] && set -- $(git branch | awk '($1 != "*")' | xargs)
 
 trap "echo; echo 'Exiting...';echo; git checkout -q ${current}; exit 0" SIGINT SIGTERM
 

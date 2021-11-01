@@ -4,8 +4,16 @@ Rebase several branches on the current one.
 
 ## Usage
 
+_Rebase a given list of branches:_
+
 ```
 (master)$ git batch-rebase branch1 [branch2 ... [branchN]]
+```
+
+_or rebase all local branches:_
+
+```
+git batch-rebase --all
 ```
 
 ### Examples
