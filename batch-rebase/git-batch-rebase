@@ -19,6 +19,16 @@ _printf(){
     printf "$@"
 }
 
+_exec(){
+    local status
+    printf "%s\n" "$*"
+    echo -ne "\033[01;30m"
+    $@
+    status=$?
+    echo -ne "\033[00m"
+    return ${status}
+}
+
 [ "$#" -eq "0" ] && _usage
 
 current=$(git branch | awk '($1 == "*") { print $2; }')
@@ -26,31 +36,31 @@ current=$(git branch | awk '($1 == "*") { print $2; }')
 # If --all option was supplied, set all (except the current) branches as argument
 [ "${1}" == "--all" ] && set -- $(git branch | awk '($1 != "*")' | xargs)
 
-trap "echo; echo 'Exiting...';echo; git checkout -q ${current}; exit 0" SIGINT SIGTERM
+trap "git checkout -q ${current}; echo; echo -n 'Exiting...'; exit 0" SIGINT SIGTERM
 
 for f in "$@"
 do
     _printf "Rebasing %s onto %s" ${f} ${current} && \
-    git checkout -q ${f} && \
+    _exec git checkout -q ${f} && \
     sleep 2
-    git rebase -i ${current} && \
+    _exec git rebase -i ${current} && \
     _printf "Push rebased branch ? (y/f/N)" && \
     read r && \
     {
         case "${r}" in
             y|yes)
-                git push && \
+                _exec git push && \
                 _printf "=> Pushed rebased branch"
                 ;;
             f|force)
-                git push --force && \
+                _exec git push --force && \
                 _printf "=> Force-pushed rebased branch"
                 ;;
             *)
                 _printf "=> Rebased branch not pushed"
         esac
     }
-    git checkout -q ${current}
+    _exec git checkout -q ${current}
 done
 
-git checkout -q ${current}
+_exec git checkout -q ${current}
