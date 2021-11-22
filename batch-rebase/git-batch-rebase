@@ -19,6 +19,7 @@ _printf(){
     printf "$@"
 }
 
+
 _exec(){
     local status
     printf "%s\n" "$*"
@@ -27,6 +28,24 @@ _exec(){
     status=$?
     echo -ne "\033[00m"
     return ${status}
+}
+
+
+_push(){
+    _printf "Push rebased branch ? (y/f/N)" && \
+    read r && \
+    case "${r}" in
+        y|yes)
+            _exec git push && \
+            _printf "=> Pushed rebased branch"
+            ;;
+        f|force)
+            _exec git push --force && \
+            _printf "=> Force-pushed rebased branch"
+            ;;
+        *)
+            _printf "=> Rebased branch not pushed"
+    esac
 }
 
 [ "$#" -eq "0" ] && _usage
@@ -43,21 +62,19 @@ do
     _printf "Rebasing %s onto %s" ${f} ${current} && \
     _exec git checkout -q ${f} && \
     sleep 2
-    _exec git rebase -i ${current} && \
-    _printf "Push rebased branch ? (y/f/N)" && \
-    read r && \
-    {
+    # If rebase was stopped, either resolve the conflict or abort
+    _exec git rebase -i ${current} && _push || {
+        _printf "Conflict detected. What now: resolve or abort ? (r/a)" && \
+        read r && \
         case "${r}" in
-            y|yes)
-                _exec git push && \
-                _printf "=> Pushed rebased branch"
+            r|resolve)
+                _exec git mergetool && \
+                _exec git rebase --continue && \
+                _push
                 ;;
-            f|force)
-                _exec git push --force && \
-                _printf "=> Force-pushed rebased branch"
+            a|abort)
+                _exec git rebase --abort
                 ;;
-            *)
-                _printf "=> Rebased branch not pushed"
         esac
     }
     _exec git checkout -q ${current}
