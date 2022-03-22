@@ -4,23 +4,42 @@ Rebase several branches on the current one.
 
 ## Usage
 
+### Synopsis
+
+```bash
+git batch-rebase [--force] --all
+git batch-rebase [--force] branch1 [branch2 ... [branchN]]
+```
+
+### Options
+
+#### `-a`, `--all`
+
+_Rebase all local branches on the current one._
+
+#### `-f`, `--force`
+
+_Assume reply is `force` for each branch at push prompt. (See [push options](#push-options) section for details)._
+
+### Examples
+
 _Rebase a given list of branches:_
 
-```
+```bash
 git batch-rebase branch1 [branch2 ... [branchN]]
 ```
 
 _or rebase all local branches:_
 
-```
+```bash
 git batch-rebase --all
 ```
 
-### Examples
+### Use cases
 
 #### Rebase develop and feature branches on master
 
-```
+```bash
 (master)$ git batch-rebase develop feature/add-force-push-option feature/implement-debug-messages
 ```
 
