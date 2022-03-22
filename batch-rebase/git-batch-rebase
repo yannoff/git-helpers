@@ -60,6 +60,7 @@ do
         # If --all option was supplied, set all (except the current) branches as argument
         --all|-a)
             set -- $@ $(git branch | awk '($1 != "*")' | xargs)
+            shift
             ;;
         --force|-f)
             FORCE=1
