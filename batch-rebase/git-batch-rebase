@@ -75,7 +75,7 @@ for f in "$@"
 do
     _printf "Rebasing %s onto %s" ${f} ${current} && \
     _exec git checkout -q ${f} && \
-    sleep 2
+    sleep 1
     # If rebase was stopped, either resolve the conflict or abort
     _exec git rebase -i ${current} && _push || {
         _printf "Conflict detected. What now: resolve or abort ? (r/a)" && \
