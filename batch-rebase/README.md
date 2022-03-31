@@ -4,6 +4,9 @@ Rebase several branches on the current one.
 
 ## Usage
 
+> 💡 **IMPORTANT NOTE**<br/>
+>  _Only basic rebase commands (namely `pick`, `fixup`, `drop`) are supported for now._
+
 ### Synopsis
 
 ```bash
