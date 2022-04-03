@@ -52,7 +52,7 @@ _push(){
 
 current=$(git branch | awk '($1 == "*") { print $2; }')
 
-trap "git checkout -q ${current}; echo; echo -n 'Exiting...'; exit 0" SIGINT SIGTERM
+trap "git rebase --abort 2>/dev/null || true; git checkout -q ${current}; echo; echo -n 'Exiting...'; exit 0" SIGINT SIGTERM
 
 for arg
 do
