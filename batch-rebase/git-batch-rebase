@@ -77,7 +77,7 @@ do
     _exec git checkout -q ${f} && \
     sleep 1
     # If rebase was stopped, either resolve the conflict or abort
-    _exec git rebase -i ${current} && _push || {
+    _exec git rebase $([ -n "${FORCE}" ] || echo "--interactive") ${current} && _push || {
         _printf "Conflict detected. What now: resolve or abort ? (r/a)" && \
         read r && \
         case "${r}" in
