@@ -9,6 +9,7 @@ A bunch of git scripts I use for my own
 - [git-json-diff](json-diff) A script displaying `YAML` formatted diffs for `JSON` files
 - [git-batch-rebase](batch-rebase) Rebase multiple branches in just one command
 - [git-cascade-rebase](cascade-rebase) Cascade rebase multiple branches in one command
+- [git-horde-update](horde-update) Update multiple branches in just one command
 - [git-current-branch](current-branch) Give the current branch name
 
 ## License
