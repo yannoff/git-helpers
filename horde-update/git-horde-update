@@ -1,0 +1,80 @@
+#!/bin/bash
+#
+# Batch pull script
+# Update several local branches
+#
+
+_usage(){
+    local code=${1:-0}
+    echo "Usage:"
+    echo "    git horde-update [--rebase] --all"
+    echo "    git horde-update [--rebase] branch1 [branch2 ... [branchN]]"
+    exit ${code}
+}
+
+_printf(){
+    local msg=${1}
+    shift 1
+    set -- "\033[01m${msg}\033[00m\n" "$@"
+    printf "$@"
+}
+
+
+_exec(){
+    local status
+    printf "%s\n" "$*"
+    echo -ne "\033[01;30m"
+    $@
+    status=$?
+    echo -ne "\033[00m"
+    return ${status}
+}
+
+current=$(git branch | awk '($1 == "*") { print $2; }')
+
+for arg
+do
+    case ${arg} in
+        # If --all option was supplied, set all local branches as argument
+        --all|-a)
+            set -- $@ $(git branch | awk '{ print $NF; }' | xargs)
+            shift
+            ;;
+        # Make all git pull invocation with the --rebase switch
+        --rebase|-r)
+            REBASE=1
+            shift
+            ;;
+    esac
+done
+
+[ "$#" -eq "0" ] && _usage
+
+[ -n "${REBASE}" ] && resolve=rebase || resolve=merge
+
+trap "git ${resolve} --abort 2>/dev/null || true; git checkout -q ${current}; echo; echo -n 'Exiting...'; exit 0" SIGINT SIGTERM
+
+for f in "$@"
+do
+    _printf "Updating %s branch" ${f} && \
+    _exec git checkout -q ${f} && \
+    sleep 1
+
+    _exec git pull $([ -n "${REBASE}" ] && echo "--rebase" ) || {
+    # If rebase was stopped, either resolve the conflict or abort
+        _printf "Conflict detected. What now: resolve or abort ? (r/a)" && \
+        read r && \
+        case "${r}" in
+            r|resolve)
+                _exec git mergetool && \
+                _exec git ${resolve} --continue
+                ;;
+            a|abort)
+                _exec git ${resolve} --abort
+                ;;
+        esac
+    }
+    _exec git checkout -q ${current}
+done
+
+_exec git checkout -q ${current}
