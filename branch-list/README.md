@@ -39,3 +39,7 @@ _Additionally, the command accepts one optional argument, allowing to filter on 
 [prod]     fix/contents-parsing/wrong-ypath-calculation
 [prod]     fix/restore-file-ending-blank-lines
 <b>[prod]     master</b></code></pre>
+
+## License
+
+Licensed under the [MIT License](../LICENSE).

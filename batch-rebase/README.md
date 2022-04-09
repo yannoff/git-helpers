@@ -66,3 +66,7 @@ See [conflict options](#conflict-options) for details.
 
 - `r` / `resolve`: launch the `git mergetool` command, then continue rebase
 - `a` / `abort`: repristine branch to its initial state and abort rebase
+
+## License
+
+Licensed under the [MIT License](../LICENSE).

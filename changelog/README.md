@@ -71,3 +71,7 @@ $ git changelog 1.4.1 1.4.2
 - 098f5e2 [builder] Add smoke test
 - f1a24e1 Release 1.4.2
 ```
+
+## License
+
+Licensed under the [MIT License](../LICENSE).

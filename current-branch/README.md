@@ -7,3 +7,7 @@ Give the current branch name
 ```
 git current-branch
 ```
+
+## License
+
+Licensed under the [MIT License](../LICENSE).
