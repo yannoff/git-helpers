@@ -1,0 +1,94 @@
+#!/bin/bash
+#
+# Cascade rebase script
+#
+
+_usage(){
+    local code=${1:-0}
+    echo "Usage:"
+    echo "    git cascade-rebase [--force] branch1 [branch2 ... [branchN]]"
+    exit ${code}
+}
+
+_printf(){
+    local msg=${1}
+    shift 1
+    set -- "\033[01m${msg}\033[00m\n" "$@"
+    printf "$@"
+}
+
+
+_exec(){
+    local status
+    printf "%s\n" "$*"
+    echo -ne "\033[01;30m"
+    $@
+    status=$?
+    echo -ne "\033[00m"
+    return ${status}
+}
+
+
+_push(){
+    _printf "Push rebased branch ? (y/f/N)" && \
+    {
+        [ -n "${FORCE}" ] && r=force || read r
+    } && \
+    case "${r}" in
+        y|yes)
+            _exec git push && \
+            _printf "=> Pushed rebased branch"
+            ;;
+        f|force)
+            _exec git push --force && \
+            _printf "=> Force-pushed rebased branch"
+            ;;
+        *)
+            _printf "=> Rebased branch not pushed"
+    esac
+}
+
+root=$(git branch | awk '($1 == "*") { print $2; }')
+
+trap "git rebase --abort 2>/dev/null || true; git checkout -q ${root}; echo; echo -n 'Exiting...'; exit 0" SIGINT SIGTERM
+
+for arg
+do
+    case ${arg} in
+        --force|-f)
+            FORCE=1
+            shift
+            ;;
+    esac
+done
+
+[ "$#" -eq "0" ] && _usage
+
+# Set previous branch to the first one
+previous=${root}
+
+for f in "$@"
+do
+    _printf "Rebasing %s onto %s" ${f} ${previous} && \
+    _exec git checkout -q ${f} && \
+    sleep 1
+    # If rebase was stopped, either resolve the conflict or abort
+    _exec git rebase $([ -n "${FORCE}" ] || echo "--interactive") ${previous} && _push || {
+        _printf "Conflict detected. What now: resolve or abort ? (r/a)" && \
+        read r && \
+        case "${r}" in
+            r|resolve)
+                _exec git mergetool && \
+                _exec git rebase --continue && \
+                _push
+                ;;
+            a|abort)
+                _exec git rebase --abort
+                ;;
+        esac
+    }
+
+    previous=$(git branch | awk '($1 == "*") { print $2; }')
+done
+
+_exec git checkout -q ${root}
