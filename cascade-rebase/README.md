@@ -42,7 +42,7 @@ _Starting from the current branch, the script will successively checkout on each
 > _The script will rebase successively:_
 > - `develop` onto `master`
 > - `feature/one` onto `develop`
-> - `feature/one` onto ` feature/two`
+> - `feature/two` onto ` feature/one`
 
 ## Reference
 
