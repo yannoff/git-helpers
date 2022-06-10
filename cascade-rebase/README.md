@@ -19,29 +19,30 @@ git cascade-rebase [--force] branch1 [branch2 ... [branchN]]
 
 _Assume reply is `force` for each branch at push prompt. (See [push options](#push-options) section for details)._
 
-### Examples
+### Use cases
 
-_Rebase a given list of branches:_
+_Cascade rebase a given 3 branches:_
 
 ```bash
-git cascade-rebase branch1 [branch2 ... [branchN]]
+git cascade-rebase branch1 branch2 branch3
 ```
 
-### Use cases
+_Starting from the current branch, the script will successively checkout on each branch, rebase it onto the previous one, then prompt confirmation before pushing (see [push options](#push-options) section for details)._
+
+> 💡 _In case of rebase conflicts on a given branch, the script will prompt for what to do: see [conflict options](#conflict-options) for details._
+
+### Example
 
 #### Cascade rebase several branch on master
 
 ```bash
-(master)$ git cascade-rebase develop feature/add-force-push-option feature/implement-debug-messages
+(master)$ git cascade-rebase develop feature/one feature/two
 ```
 
-_Starting from `master`, the script will successively checkout on each branch, rebase it on the previous one, then prompt confirmation before pushing._
-
-See [push options](#push-options) for details.
-
-_In case of rebase conflicts on a given branch, the script will prompt for what to do:_
-
-See [conflict options](#conflict-options) for details.
+> _The script will rebase successively:_
+> - `develop` onto `master`
+> - `feature/one` onto `develop`
+> - `feature/one` onto ` feature/two`
 
 ## Reference
 
