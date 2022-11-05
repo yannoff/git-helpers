@@ -1,0 +1,56 @@
+#!/bin/bash
+#
+# Lop script
+# Delete several branches in one shot
+#
+
+_usage(){
+    local code=${1:-0}
+    echo "Usage:"
+    echo "    git lop [--force|-f]"
+    exit ${code}
+}
+
+_exec(){
+    local status
+    printf "%s\n" "$*"
+    echo -ne "\033[01;30m"
+    $@
+    status=$?
+    echo -ne "\033[00m"
+    return ${status}
+}
+
+for arg
+do
+    case ${arg} in
+        --force|-f)
+            FORCE=1
+            shift
+            ;;
+        --help|-h)
+            _usage
+            ;;
+    esac
+done
+
+all=$(git branch | awk '($1 != "*")')
+branches=()
+
+for f in ${all}
+do
+    printf "Cut-off \033[01m%s\033[00m branch ? (y/N) " ${f}
+    read r
+    [ "${r}" = "y" ] && branches+=(${f})
+done
+
+if [ -z "${FORCE}" ]
+then
+    echo
+    printf "\033[01mConfirm deletion for the following branches ? (y/N)\033[00m\n"
+    printf "\055 %s\n" ${branches[@]}
+    read r
+    [ "${r}" = "y" ] || exit
+fi
+
+_exec "git branch -D ${branches[*]}"
