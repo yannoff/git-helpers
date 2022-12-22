@@ -1,0 +1,105 @@
+#!/bin/bash
+
+_debug() {
+    local msg=${1}
+    shift 1
+    set -- "${msg}\n" "$@"
+    printf "$@"
+}
+
+_usage() {
+    cat <<EOH
+[01mUsage[00m
+    `basename $0` [--dir <migrations-dir>] [--prefix <migrations-prefix>] [--extension <migrations-extension>] [<from-ref> [<to-ref>]]
+
+[01mOptions[00m
+    --dir=<dir>       Alternative directory for the migration files (defaults: [01mmigrations/[00m)
+    --prefix=<prefix> Alternative migration filenames prefix (defaults: [01mVersion[00m)
+    --extension=<ext> Alternative migration files extension (defaults: [01mphp[00m)
+
+[01mArguments[00m
+    <from-ref>        Lower bound (tag, branch or commit) for the migration diff (defaults: [01mlatest tag[00m)
+    <to-ref>          Upper bound (tag, branch or commit) for the migration diff (defaults: [01mHEAD[00m)
+EOH
+}
+
+_get_list() {
+    for f in $(git diff --stat --name-only ${previous}..${current} ${_dir}/ | grep ${_prefix} | tac)
+    do
+        v=$(basename ${f} .${_ext})
+        echo $v | sed "s/^${_prefix}//"
+    done
+}
+
+_ext=php
+_dir=migrations
+_prefix=Version
+
+
+for args
+do
+    case "${1}" in
+        # Support passing options in the --option=value fashion
+        --*=*)
+            arg=$1
+            option=${arg%%=*}
+            value=${arg##*=}
+            shift 1
+            set -- ${option} ${value} $@
+            ;;
+        --help|--usage)
+            _usage && exit 0
+            ;;
+        --dir)
+            _dir=${2}
+            shift 2
+            ;;
+        --prefix)
+            _prefix=${2}
+            shift 2
+            ;;
+        --extension)
+            _ext=${2}
+            shift 2
+            ;;
+        --*)
+            _debug "Warning: unknown option %s, ignoring." ${1}
+            shift 1
+            ;;
+    esac
+done
+
+previous=${1}
+current=${2:-HEAD}
+
+# If no previous ref passed, use the latest known tag as default
+[ -z "${previous}" ] && previous=$(git describe --tag --abbrev=0)
+
+_debug "Migrations between \033[01;32m%s\033[00m and \033[01;32m%s\033[00m refs:" ${previous} ${current}
+
+migs=$(_get_list)
+
+[ -z "${migs}" ] && echo "(no migration)" && exit 0
+
+_debug "${migs}"
+
+
+#for f in $(git diff --stat --name-only ${previous}..${current} migrations/ | grep Version)
+#do
+#    v=$(basename $f .php)
+#    echo $v | sed 's/^Version//'
+#done
+
+_lines=()
+
+for v in ${migs}
+do
+    _debug "Revert \033[01;32m%s\033[00m version ? (y/N)" ${v}
+    read r
+    [ "${r}" = "y" ] && _lines+=("bin/console doc:mig:exe --no-interaction --down ${v}") || { [ -z "${r}" ] && echo "no"; }
+done
+
+for f in "${_lines[@]}"
+do
+    echo $f
+done
