@@ -1,0 +1,10 @@
+#!/bin/bash
+
+for t in $(git tag | sort -gr)
+do
+    printf "[%s]: delete \033[00;33m%s\033[00m tag ? (y/N) " $(basename $0) ${t}
+    read r
+    [ "${r}" = "y" ] || continue
+    git tag -d ${t}
+    git push origin :${t}
+done
