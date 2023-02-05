@@ -5,7 +5,7 @@ Delete several branches in one shot.
 ## Usage
 
 ```
-git lop [-f|--force]
+git lop [-f|--force] [-r|--remote [-u <REMOTE>|--upstream=<REMOTE>]]
 ```
 
 ### Examples
@@ -56,6 +56,8 @@ _Unless invoked with the `--force` flag, the script will ask for confirmation be
 
 - `h` / `help` : show usage
 - `f` / `force` : don't ask for confirmation before actual branch deletion
+- `r` / `remote` : also delete branch on the remote upstream
+- `u` / `upstream` : alternative upstream name (defaults to origin) - only for `--remote` mode
 
 ## License
 

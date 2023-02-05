@@ -4,10 +4,12 @@
 # Delete several branches in one shot
 #
 
+upstream=origin
+
 _usage(){
     local code=${1:-0}
     echo "Usage:"
-    echo "    git lop [--force|-f]"
+    echo "    git lop [--force|-f] [--remote|-r [-u <REMOTE>]|--upstream=<REMOTE>]"
     exit ${code}
 }
 
@@ -24,12 +26,28 @@ _exec(){
 for arg
 do
     case ${arg} in
+        # Support passing options in the --option=value fashion
+        --*=*)
+            arg=$1
+            option=${arg%%=*}
+            value=${arg##*=}
+            shift 1
+            set -- ${option} ${value} $@
+            ;;
         --force|-f)
             FORCE=1
             shift
             ;;
         --help|-h)
             _usage
+            ;;
+        --remote|-r)
+            REMOTE=1
+            shift
+            ;;
+        --upŝtream|-u)
+            upstream=${2}
+            shift 2
             ;;
     esac
 done
@@ -54,3 +72,8 @@ then
 fi
 
 _exec "git branch -D ${branches[*]}"
+[ -z "${REMOTE}" ] && exit
+for branch in "${branches[@]}"
+do
+    _exec "git push ${upstream} :${branch}"
+done
