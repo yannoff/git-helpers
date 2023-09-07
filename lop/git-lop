@@ -71,9 +71,8 @@ then
     [ "${r}" = "y" ] || exit
 fi
 
-_exec "git branch -D ${branches[*]}"
-[ -z "${REMOTE}" ] && exit
 for branch in "${branches[@]}"
 do
-    _exec "git push ${upstream} :${branch}"
+    _exec "git branch -D ${branch}"
+    [ -n "${REMOTE}" ] && _exec "git push ${upstream} :${branch}"
 done
