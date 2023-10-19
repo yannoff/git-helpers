@@ -45,7 +45,7 @@ do
             REMOTE=1
             shift
             ;;
-        --upŝtream|-u)
+        --upstream|-u)
             upstream=${2}
             shift 2
             ;;
