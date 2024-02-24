@@ -1,0 +1,23 @@
+#!/bin/bash
+
+u=
+e=
+
+for f in $(git config -l)
+do
+    key=${f//=*}
+    value=${f##*=}
+    case "$key" in
+        user*)
+            [ "$key" = "user.name" ] && u=$value
+            [ "$key" = "user.email" ] && e=$value
+            ;;
+        *)
+            continue
+            ;;
+    esac
+    #echo "$key => $value"
+done
+
+echo "Username: $u"
+echo "Email:    $e"
