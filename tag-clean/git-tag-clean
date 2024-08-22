@@ -1,6 +1,11 @@
 #!/bin/bash
 
-for t in $(git tag | sort -gr)
+if [ "$#" -eq "0" ]
+then
+    set -- "$(git tag | sort -gr | xargs)"
+fi
+
+for t in "$@"
 do
     printf "[%s]: delete \033[00;33m%s\033[00m tag ? (y/N) " $(basename $0) ${t}
     read r
