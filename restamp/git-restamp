@@ -1,0 +1,43 @@
+#!/bin/bash
+
+_echo(){
+    echo -e "\033[01;33m${1}\033[00m"
+}
+
+_usage(){
+    echo "git restamp [-n|--no-edit] <date>"
+    exit 0
+}
+
+for arg
+do
+    case ${arg} in
+        # Support passing options in the --option=value fashion
+        --*=*)
+            arg=$1
+            option=${arg%%=*}
+            value=${arg##*=}
+            shift 1
+            set -- ${option} ${value} $@
+            ;;
+        --no-edit|-n)
+            noedit=1
+            shift
+            ;;
+        --help|-h)
+            _usage
+            ;;
+        *)
+            d=${arg}
+            shift
+            ;;
+    esac
+done
+
+t=$(date --iso-8601=seconds --date="${d:-now}")
+
+_echo "Last commit was: \n"
+git log -1 --no-decorate
+_echo "\nDate will be amended to: ${t/T/ } - Confirm ? (y/N)"
+read r
+[ "${r}" = "y" ] && env GIT_COMMITTER_DATE=${t} git commit --amend $([ -n "${noedit}" ] && echo "--no-edit") --date=${t}
