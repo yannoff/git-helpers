@@ -1,0 +1,11 @@
+#!/bin/bash
+
+f=$1
+
+usage(){
+    printf "Usage: git min-diff <file>\n"
+}
+
+[ -z "$f" ] && echo "Error: missing file argument." && usage && exit 1
+
+git diff -U0 --word-diff=plain $f | tail -n +5

@@ -2,6 +2,7 @@
 A bunch of git scripts I use for my own
 
 ## Helpers
+- [git-min-diff](min-diff) Produces a minimal, headerless file diff
 - [git-lop](lop) An interactive script for mass local branches deletion
 - [git-whoami](whoami) Get local working copy configured user name & email
 - [git-branch-list](branch-list) An enhanced version of the `git branch --list` command
